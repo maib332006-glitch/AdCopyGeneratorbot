@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Ad Copy Generator</title>
+  
+  <!-- Telegram WebApp SDK: REQUIRED to stay inside Telegram -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    :root {
+      --bg-color: var(--tg-theme-bg-color, #ffffff);
+      --text-color: var(--tg-theme-text-color, #000000);
+      --btn-color: var(--tg-theme-button-color, #2481cc);
+      --btn-text-color: var(--tg-theme-button-text-color, #ffffff);
+      --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5);
+      --hint-color: var(--tg-theme-hint-color, #999999);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 16px;
+      box-sizing: border-box;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      margin: 0;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      color: var(--hint-color);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      background-color: var(--secondary-bg);
+      color: var(--text-color);
+      font-size: 14px;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background-color: var(--btn-color);
+      color: var(--btn-text-color);
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .result-box {
+      margin-top: 20px;
+      padding: 14px;
+      background-color: var(--secondary-bg);
+      border-radius: 10px;
+      display: none;
+    }
+
+    .result-content {
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .copy-btn {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      border: 1px solid var(--btn-color);
+      color: var(--btn-color);
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>⚡ Ad Copy Generator</h1>
+    </div>
+
+    <div class="form-group">
+      <label for="product">Product / Service</label>
+      <input type="text" id="product" placeholder="e.g. Wireless Headphones" />
+    </div>
+
+    <div class="form-group">
+      <label for="audience">Target Audience</label>
+      <input type="text" id="audience" placeholder="e.g. Gamers, Fitness Enthusiasts" />
+    </div>
+
+    <div class="form-group">
+      <label for="tone">Tone of Voice</label>
+      <select id="tone">
+        <option value="Persuasive">Persuasive</option>
+        <option value="Urgent">Urgent / FOMO</option>
+        <option value="Professional">Professional</option>
+        <option value="Casual">Casual & Friendly</option>
+      </select>
+    </div>
+
+    <button class="submit-btn" onclick="generateAdCopy()">Generate Copy</button>
+
+    <div class="result-box" id="resultBox">
+      <label>Generated Copy</label>
+      <div class="result-content" id="resultText"></div>
+      <button class="copy-btn" onclick="copyToClipboard()">📋 Copy Text</button>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Telegram WebApp SDK
+    const tg = window.Telegram.WebApp;
+    
+    // Expand mini app to full screen inside Telegram
+    tg.ready();
+    tg.expand();
+
+    function generateAdCopy() {
+      const product = document.getElementById('product').value.trim();
+      const audience = document.getElementById('audience').value.trim() || 'everyone';
+      const tone = document.getElementById('tone').value;
+
+      if (!product) {
+        tg.showAlert("Please specify a product or service name.");
+        return;
+      }
+
+      let copy = "";
+      if (tone === "Urgent") {
+        copy = `🚨 LIMITED TIME OFFER!\n\nAre you looking for high-quality ${product}? Designed specifically for ${audience}.\n\n🔥 Grab yours now before stock runs out!`;
+      } else if (tone === "Persuasive") {
+        copy = `✨ Upgrade your routine with ${product}.\n\nEngineered for ${audience} who demand performance and efficiency.\n\n👉 Click below to discover more!`;
+      } else if (tone === "Professional") {
+        copy = `Introducing ${product} — the reliable solution built for ${audience}.\n\nEnhance operational performance starting today.\n\nContact us to learn more.`;
+      } else {
+        copy = `Hey ${audience}! 👋\n\nLooking for top-notch ${product}? We've got you covered.\n\nCheck it out today!`;
+      }
+
+      document.getElementById('resultText').innerText = copy;
+      document.getElementById('resultBox').style.display = 'block';
+
+      // Provide native haptic feedback inside Telegram
+      if (tg.HapticFeedback) {
+        tg.HapticFeedback.notificationOccurred('success');
+      }
+    }
+
+    function copyToClipboard() {
+      const text = document.getElementById('resultText').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        tg.showAlert("Copied to clipboard!");
+      });
+    }
+  </script>
+</body>
+</html>
